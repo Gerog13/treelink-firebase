@@ -47,7 +47,7 @@ export async function existsUsername(username) {
   const q = query(docsRef, where("username", "==", username));
   const querySnapshot = await getDocs(q);
   querySnapshot.forEach((doc) => {
-    users.push(doc.data);
+    users.push(doc.data());
   });
   return users.length > 0 ? users[0].uid : null;
 }
@@ -62,7 +62,6 @@ export async function registerNewUser(user) {
 }
 
 export async function updateUser(user) {
-  console.log(user);
   try {
     const usersRef = collection(db, "users");
     await setDoc(doc(usersRef, user.uid), user);
@@ -142,4 +141,14 @@ export async function getProfilePhotoUrl(profilePicture) {
   } catch (error) {
     console.error(error);
   }
+}
+
+
+export async function getUserPublicProfileInfo(uid) {
+  const profileInfo = await getUserInfo(uid);
+  const linksInfo = await getLinks(uid);
+  return {
+    profile: profileInfo,
+    links: linksInfo,
+  };
 }

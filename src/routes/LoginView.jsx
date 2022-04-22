@@ -20,6 +20,7 @@ const LoginView = () => {
   4: nobody logged in
   5: user already exists
   6: new username, click to continue
+  7: username does not exist
   */
   const [state, setCurrentState] = useState(0);
 

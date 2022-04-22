@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import DashboardWrapper from "../components/DashboardWrapper";
 import AuthProvider from "../components/AuthProvider";
 import { useNavigate } from "react-router-dom";
-import { setUserProfilePhoto } from "../firebase/firebase";
+import { getProfilePhotoUrl, setUserProfilePhoto, updateUser } from "../firebase/firebase";
 
 const EditProfileView = () => {
   const navigate = useNavigate();
@@ -13,6 +13,8 @@ const EditProfileView = () => {
 
   async function handleUserLoggedIn(user) {
     setCurrentUser(user);
+    const url = await getProfilePhotoUrl(user.profilePicture);
+    setProfileUrl(url);
     setState(2);
   }
 
@@ -38,7 +40,14 @@ const EditProfileView = () => {
       fileReader.onload = async function () {
         const imageData = fileReader.result;
         const res = await setUserProfilePhoto(currentUser.uid, imageData);
-        console.log(res);
+        if(res) {
+          const tmpUser = {...currentUser};
+          tmpUser.profilePicture = res.metadata.fullPath;
+          await updateUser(tmpUser);
+          setCurrentUser({...tmpUser});
+          const url = await getProfilePhotoUrl(currentUser.profilePicture);
+          setProfileUrl(url);
+        }
       };
     }
   }
